@@ -1,0 +1,43 @@
+#mosa 
+FROM python:3.6-stretch
+USER root
+COPY sources.list /etc/apt/
+RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - \
+    && apt-get update && apt-get install default-jre nodejs software-properties-common sed -y \
+    && mkdir /opt/sonarscanner && cd /opt/sonarscanner \
+    && wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-3.2.0.1227-linux.zip \
+    && unzip sonar-scanner-cli-3.2.0.1227-linux.zip \
+    && rm sonar-scanner-cli-3.2.0.1227-linux.zip \
+    && chmod +x sonar-scanner-3.2.0.1227-linux/bin/sonar-scanner \
+    && ln -s /opt/sonarscanner/sonar-scanner-3.2.0.1227-linux/bin/sonar-scanner /usr/local/bin/sonar-scanner \
+    && mkdir /opt/kubectl && cd /opt/kubectl \
+    && curl -LO https://dl.k8s.io/release/v1.21.0/bin/linux/amd64/kubectl \
+    && chmod +x /opt/kubectl/kubectl \
+    && ln -s /opt/kubectl/kubectl /usr/local/bin/kubectl \
+    && curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - \
+    && apt-key fingerprint 0EBFCD88 \
+    && add-apt-repository \
+       "deb [arch=amd64] https://download.docker.com/linux/debian \
+       $(lsb_release -cs) \
+       stable" \
+    && apt-get update \
+    && apt-get install -y docker-ce-cli \   
+    && apt-get clean 
+
+ENV JAVA_HOME /usr/lib/jvm/java-1.8-openjdk
+ENV PATH $JAVA_HOME/bin:$JAVA_HOME/lib:$PATH
+ENV PATH=$PATH:/home/jenkins/.local/bin
+
+RUN groupadd -g 1000 jenkins && \
+    useradd -d /home/jenkins -u 1000 -g 1000 -m jenkins && \
+    usermod -aG root jenkins && usermod -aG staff jenkins && \
+    groupadd docker --gid=999 && \
+    usermod -aG docker jenkins && \
+    mkdir /home/jenkins/.kube && \
+    chown -Rf jenkins:jenkins /home/jenkins/.kube
+
+COPY config_template /home/jenkins
+USER jenkins
+WORKDIR /home/jenkins
+
+CMD ["/bin/sh"]
