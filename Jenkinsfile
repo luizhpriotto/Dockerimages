@@ -26,10 +26,15 @@ pipeline {
         }
 	    
         stage('Acesso Cluster'){
-            when { anyOf { branch 'main'; branch "story/*"; branch 'development'; branch 'release';  } }        
+            when { anyOf { branch 'master'; branch "story/*"; branch 'development'; branch 'release';  } }        
             steps {
                 script{
-                    withCredentials([file(credentialsId: 'config_dev', variable: 'config')]){
+
+                    if (env.branchname == 'main'){
+                        def conf = 'config_dev'
+                    }
+
+                    withCredentials([file(credentialsId: $conf, variable: 'config')]){
                         sh('cp $config '+"$home"+'/.kube/config')
                         sh( 'kubectl get nodes')
                         sh('rm -f '+"$home"+'/.kube/config')
