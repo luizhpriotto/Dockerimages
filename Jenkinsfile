@@ -48,6 +48,7 @@ pipeline {
         }
         
         stage('Testes') {
+          when { branch 'homolog' }
           steps {
              sh 'pip install --user pipenv'
              sh 'pipenv install --dev'
