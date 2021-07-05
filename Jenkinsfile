@@ -77,17 +77,24 @@ pipeline {
         stage('Build') {
           when { anyOf { branch 'main'; branch "story/*"; branch 'development'; branch 'release';  } } 
           steps {
-                 if ( env.branchname == 'main' ) {
+            script {
+
+                if ( env.branchname == 'main' ) {
                   timeout(time: 24, unit: "HOURS") {
                     input message: 'Deseja realizar o deploy?', ok: 'SIM', submitter: 'admin'
                   }
-                 }
-
-            script {
-                dockerImage = docker.build imagename
+                    dockerImage = docker.build imagename
                     docker.withRegistry( '', registryCredential ) {
                         dockerImage.push(imagetag)
                     }
+
+                 }
+                 else {
+                    dockerImage = docker.build imagename
+                        docker.withRegistry( '', registryCredential ) {
+                            dockerImage.push(imagetag)
+                    }
+                 }
             }
             sh "docker rmi $imagename:$imagetag"
           }
