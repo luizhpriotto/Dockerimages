@@ -3,7 +3,7 @@ pipeline {
     environment {
       branchname =  env.BRANCH_NAME.toLowerCase()
       registryCredential = 'regsme'
-      imagename = "registry.sme.prefeitura.sp.gov.br/${env.branchname}/sme-sigpae-api"
+      imagename = "luizhpriotto/${env.branchname}/sme-sigpae-api"
       kubeconfig = "${env.branchname == 'main' ? 'config_dev' : 'config_hom'}"
       imagetag = "${env.branchname == 'main' ? 'latest' : 'release'}"
     }
