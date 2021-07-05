@@ -21,7 +21,7 @@ pipeline {
       stage{
         
         steps {
-             sh 'echo $imagename'
+             sh "echo $imagename"
         }        
         
       }    
