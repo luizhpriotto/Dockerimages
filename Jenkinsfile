@@ -77,7 +77,11 @@ pipeline {
         stage('Build') {
           when { anyOf { branch 'main'; branch "story/*"; branch 'development'; branch 'release';  } } 
           steps {
-            sh 'echo build docker image desenvolvimento'
+                 when { branch 'homolog' }
+                  timeout(time: 24, unit: "HOURS") {
+                    input message: 'Deseja realizar o deploy?', ok: 'SIM', submitter: 'admin'
+                  }
+
             script {
                 dockerImage = docker.build imagename
                     docker.withRegistry( '', registryCredential ) {
@@ -111,9 +115,6 @@ pipeline {
     }
     failure {
       sendTelegram("💥 Job Name: ${JOB_NAME} \nBuild: ${BUILD_DISPLAY_NAME} \nStatus: Failure \nLog: \n${env.BUILD_URL}console")
-    }
-    changed {
-      echo 'Things were different before...'
     }
     aborted {
       sendTelegram ("😥 Job Name: ${JOB_NAME} \nBuild: ${BUILD_DISPLAY_NAME} \nStatus: Aborted \nLog: \n${env.BUILD_URL}console")
