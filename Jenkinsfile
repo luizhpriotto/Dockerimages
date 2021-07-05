@@ -26,7 +26,7 @@ pipeline {
         }
 	    
         stage('Acesso Cluster'){
-            when { anyOf { branch 'master'; branch "story/*"; branch 'development'; branch 'release';  } }        
+            when { anyOf { branch 'main'; branch "story/*"; branch 'development'; branch 'release';  } }        
             steps {
                 script{
 
