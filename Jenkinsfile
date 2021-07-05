@@ -77,10 +77,11 @@ pipeline {
         stage('Build') {
           when { anyOf { branch 'main'; branch "story/*"; branch 'development'; branch 'release';  } } 
           steps {
-                 when { branch 'homolog' }
+                 if ( env.branchname == 'main' ) {
                   timeout(time: 24, unit: "HOURS") {
                     input message: 'Deseja realizar o deploy?', ok: 'SIM', submitter: 'admin'
                   }
+                 }
 
             script {
                 dockerImage = docker.build imagename
