@@ -31,7 +31,7 @@ pipeline {
       stage('teste1'){
 	      
         steps {
-             sh "echo $imagename"
+             sh "echo $branchname"
         }        
         
       }    
