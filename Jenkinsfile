@@ -19,8 +19,8 @@ pipeline {
     }
   
     stages {
-      stage{
-        
+      stage('teste1'){
+	      
         steps {
              sh "echo $imagename"
         }        
