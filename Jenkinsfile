@@ -1,7 +1,7 @@
 
 pipeline {
     environment {
-      imagename = "registry.sme.prefeitura.sp.gov.br/"+env.BRANCH_NAME.toLowerCase()+"/sme-sigpae-api"
+      imagename = "registry.sme.prefeitura.sp.gov.br/" + env.BRANCH_NAME.toLowerCase() + "/sme-sigpae-api"
       registryCredential = 'regsme'
     }
   
