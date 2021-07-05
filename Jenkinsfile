@@ -1,9 +1,9 @@
 
 pipeline {
     environment {
-      imagename = "registry.sme.prefeitura.sp.gov.br/"
       branchname =  env.BRANCH_NAME.toLowerCase()
       registryCredential = 'regsme'
+      imagename "registry.sme.prefeitura.sp.gov.br/"+ branchname "/sme-sigpae-api"
     }
   
     agent {
@@ -32,6 +32,7 @@ pipeline {
 	      
         steps {
              sh "echo $branchname"
+	     sh "echo $imagename"
         }        
         
       }    
