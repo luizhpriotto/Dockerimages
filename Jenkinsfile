@@ -3,7 +3,7 @@ pipeline {
     environment {
       branchname =  env.BRANCH_NAME.toLowerCase()
       registryCredential = 'regsme'
-	    imagename = "registry.sme.prefeitura.sp.gov.br/${env.branchname}/sme-sigpae-api"
+      imagename = "registry.sme.prefeitura.sp.gov.br/${env.branchname}/sme-sigpae-api"
     }
   
     agent {
@@ -20,21 +20,22 @@ pipeline {
   
     stages {
 	    
-       stage('CheckOut') {
-	       
-        steps {
-          checkout scm
+        stage('CheckOut') {
+            
+            steps {
+            checkout scm
+            }
+            
         }
-	       
-       }
 	    
-      stage('teste1'){
-	      
-        steps {
-             sh "echo $branchname"
-	     sh "echo $imagename"
-        }        
-        
-      }    
+        stage('teste1'){
+            
+            steps {
+                withCredentials([file(credentialsId: 'config_dev', variable: 'config'){
+                    sh "cp \$config $home/.kube/config"
+                    sh "kubectl get nodes"
+                }
+            }           
+        }    
     }
 }
