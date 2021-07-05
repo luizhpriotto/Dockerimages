@@ -113,7 +113,7 @@ pipeline {
       sendTelegram("O Build ${BUILD_DISPLAY_NAME} <${env.BUILD_URL}> - Esta instavel ...\nConsulte o log para detalhes -> [Job logs](${env.BUILD_URL}console)")
     }
     failure {
-      sendTelegram("${JOB_NAME}...O Build ${BUILD_DISPLAY_NAME}  - Quebrou. \nConsulte o log para detalhes -> <a href='${env.BUILD_URL}console'>[Job logs]</a>")
+      sendTelegram("Job Name: ${JOB_NAME} \nBuild: ${BUILD_DISPLAY_NAME} \nStatus: Failure \nLog: \n${env.BUILD_URL}console")
     }
     changed {
       echo 'Things were different before...'
@@ -132,7 +132,7 @@ def sendTelegram(message) {
         response = httpRequest (consoleLogResponseBody: true,
                 contentType: 'APPLICATION_JSON',
                 httpMode: 'GET',
-                url: 'https://api.telegram.org/bot'+"$TOKEN"+'/sendMessage?text='+encodedMessage+'&chat_id='+"$CHAT_ID"+'&disable_web_page_preview=false',
+                url: 'https://api.telegram.org/bot'+"$TOKEN"+'/sendMessage?text='+encodedMessage+'&chat_id='+"$CHAT_ID"+'&disable_web_page_preview=true',
                 validResponseCodes: '200')
         return response
     }
