@@ -9,7 +9,7 @@ pipeline {
     agent {
       node {
         label 'python-36-rc'
-	    }
+      }
     }
 
     options {
@@ -18,24 +18,22 @@ pipeline {
       skipDefaultCheckout()
     }
   
-    stages {
-	    
-        stage('CheckOut') {
-            
+    stages {	    
+        stage('.oO CheckOut Oo.') {            
             steps {
             checkout scm
-            }
-            
+            }            
         }
 	    
-        stage('teste1'){
-            
+        stage('Acesso Cluster'){
+            when { anyOf { branch 'master'; branch "story/*"; branch 'development'; branch 'release';  } }        
             steps {
-
-                withCredentials([file(credentialsId: 'config_dev', variable: 'config')]){
-                    sh('cp $config '+"$home"+'/.kube/config')
-		    sh 'kubectl get nodes'
-		    sh('rm -f '+"$home"+'/.kube/config')
+                script{
+                    withCredentials([file(credentialsId: 'config_dev', variable: 'config')]){
+                        sh('cp $config '+"$home"+'/.kube/config')
+                        sh( 'kubectl get nodes')
+                        sh('rm -f '+"$home"+'/.kube/config')
+                    }
                 }
             }           
         }    
