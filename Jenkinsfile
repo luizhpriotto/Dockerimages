@@ -30,18 +30,10 @@ pipeline {
             when { anyOf { branch 'main'; branch "story/*"; branch 'development'; branch 'release';  } }        
             steps {
                 script{
-
-                    if (env.branchname == 'main'){
-                        def conf = 'config_dev'
-                    }
-		    else {
-			def conf = 'config_dev'
-		    }
-
-			withCredentials([file(credentialsId: "${kubeconfig}", variable: 'config')]){
-                        sh('cp $config '+"$home"+'/.kube/config')
-                        sh( 'kubectl get nodes')
-                        sh('rm -f '+"$home"+'/.kube/config')
+	            withCredentials([file(credentialsId: "${kubeconfig}", variable: 'config')]){
+                      sh('cp $config '+"$home"+'/.kube/config')
+                      sh( 'kubectl get nodes')
+                      sh('rm -f '+"$home"+'/.kube/config')
                     }
                 }
             }           
