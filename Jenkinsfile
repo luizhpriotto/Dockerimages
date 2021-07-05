@@ -19,6 +19,15 @@ pipeline {
     }
   
     stages {
+	    
+       stage('CheckOut') {
+	       
+        steps {
+          checkout scm
+        }
+	       
+       }
+	    
       stage('teste1'){
 	      
         steps {
