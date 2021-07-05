@@ -33,8 +33,11 @@ pipeline {
                     if (env.branchname == 'main'){
                         def conf = 'config_dev'
                     }
+		    else {
+			def conf = 'config_dev'
+		    }
 
-                    withCredentials([file(credentialsId: $conf, variable: 'config')]){
+                    withCredentials([file(credentialsId: env.conf, variable: 'config')]){
                         sh('cp $config '+"$home"+'/.kube/config')
                         sh( 'kubectl get nodes')
                         sh('rm -f '+"$home"+'/.kube/config')
