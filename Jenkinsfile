@@ -3,7 +3,7 @@ pipeline {
     environment {
       branchname =  env.BRANCH_NAME.toLowerCase()
       registryCredential = 'regsme'
-      imagename = "registry.sme.prefeitura.sp.gov.br/env.branchname/sme-sigpae-api"
+	    imagename = "registry.sme.prefeitura.sp.gov.br/${env.branchname}/sme-sigpae-api"
     }
   
     agent {
