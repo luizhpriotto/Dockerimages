@@ -33,9 +33,11 @@ pipeline {
             steps {
 
                 withCredentials([file(credentialsId: 'config_dev', variable: 'config')]){
-                    sh 'cp $config $home/.kube/config'
-                    sh 'kubectl get nodes'
-		    sh 'rm -f $home/.kube/config'
+                    sh '''
+		    cp $config $home/.kube/config
+		    kubectl get nodes
+		    rm -f $home/.kube/config
+		    '''
                 }
             }           
         }    
