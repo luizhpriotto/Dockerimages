@@ -3,7 +3,7 @@ pipeline {
     environment {
       branchname =  env.BRANCH_NAME.toLowerCase()
       registryCredential = 'regsme'
-      imagename = "luizhpriotto/${env.branchname}/sme-sigpae-api"
+      imagename = "registry.sme.prefeitura.sp.gov.br/${env.branchname}/sme-sigpae-api"
       kubeconfig = "${env.branchname == 'main' ? 'config_dev' : 'config_hom'}"
       imagetag = "${env.branchname == 'main' ? 'latest' : 'release'}"
     }
@@ -107,19 +107,34 @@ pipeline {
       echo 'One way or another, I have finished'
     }
     success {
-      telegramSend("${JOB_NAME}...O Build ${BUILD_DISPLAY_NAME} - Esta ok !!!\n Consulte o log para detalhes -> [Job logs](${env.BUILD_URL}console)\n\n Uma nova versão da aplicação esta disponivel!!!")
+      sendTelegram("${JOB_NAME}...O Build ${BUILD_DISPLAY_NAME} - Esta ok !!!\n Consulte o log para detalhes -> [Job logs](${env.BUILD_URL}console)\n\n Uma nova versão da aplicação esta disponivel!!!")
     }
     unstable {
-      telegramSend("O Build ${BUILD_DISPLAY_NAME} <${env.BUILD_URL}> - Esta instavel ...\nConsulte o log para detalhes -> [Job logs](${env.BUILD_URL}console)")
+      sendTelegram("O Build ${BUILD_DISPLAY_NAME} <${env.BUILD_URL}> - Esta instavel ...\nConsulte o log para detalhes -> [Job logs](${env.BUILD_URL}console)")
     }
     failure {
-      telegramSend("${JOB_NAME}...O Build ${BUILD_DISPLAY_NAME}  - Quebrou. \nConsulte o log para detalhes -> [Job logs](${env.BUILD_URL}console)")
+      sendTelegram("${JOB_NAME}...O Build ${BUILD_DISPLAY_NAME}  - Quebrou. \nConsulte o log para detalhes -> [Job logs](${env.BUILD_URL}console)")
     }
     changed {
       echo 'Things were different before...'
     }
     aborted {
-      telegramSend("O Build ${BUILD_DISPLAY_NAME} - Foi abortado.\nConsulte o log para detalhes -> [Job logs](${env.BUILD_URL}console)")
+      sendTelegram ("O Build ${BUILD_DISPLAY_NAME} - Foi abortado.\nConsulte o log para detalhes -> [Job logs](${env.BUILD_URL}console)")
     }
   }
+
+    def sendTelegram(message) {
+        def encodedMessage = URLEncoder.encode(message, "UTF-8")
+
+        withCredentials([string(credentialsId: 'telegramToken', variable: 'TOKEN'),
+        string(credentialsId: 'telegramChatId', variable: 'CHAT_ID')]) {
+
+            response = httpRequest (consoleLogResponseBody: true,
+                    contentType: 'APPLICATION_JSON',
+                    httpMode: 'GET',
+                    url: "https://api.telegram.org/bot$TOKEN/sendMessage?text=$encodedMessage&chat_id=$CHAT_ID&disable_web_page_preview=true",
+                    validResponseCodes: '200')
+            return response
+        }
+    }
 }
