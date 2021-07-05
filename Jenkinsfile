@@ -4,6 +4,7 @@ pipeline {
       branchname =  env.BRANCH_NAME.toLowerCase()
       registryCredential = 'regsme'
       imagename = "registry.sme.prefeitura.sp.gov.br/${env.branchname}/sme-sigpae-api"
+      kubeconfig = "${env.branchname == 'main' ? 'config_dev' : 'config_hom'}"
     }
   
     agent {
@@ -37,7 +38,7 @@ pipeline {
 			def conf = 'config_dev'
 		    }
 
-			withCredentials([file(credentialsId: ${conf}, variable: 'config')]){
+			withCredentials([file(credentialsId: "${kubeconfig}", variable: 'config')]){
                         sh('cp $config '+"$home"+'/.kube/config')
                         sh( 'kubectl get nodes')
                         sh('rm -f '+"$home"+'/.kube/config')
