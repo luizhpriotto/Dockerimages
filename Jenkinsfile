@@ -22,7 +22,13 @@ pipeline {
   
     stages {
 
-        stage('BD') {
+        stage('CheckOut') {            
+            steps {
+              checkout scm
+            }            
+        }
+
+        stage('AmbienteTestes') {
             agent {
                 label 'master'
             }
@@ -56,7 +62,7 @@ pipeline {
           }
         }
 
-        stage('Analise codigo') {
+        stage('AnaliseCodigo') {
 	      when { branch 'homolog' }
           steps {
             sh 'echo "[ INFO ] Iniciando analise Sonar..." && sonar-scanner \
@@ -65,12 +71,6 @@ pipeline {
               -Dsonar.host.url=http://sonar.sme.prefeitura.sp.gov.br \
               -Dsonar.login=0d279825541065cf66a60cbdfe9b8a25ec357226'
           }
-        }
-
-        stage('.oO CheckOut Oo.') {            
-            steps {
-            checkout scm
-            }            
         }
 
         stage('Build') {
