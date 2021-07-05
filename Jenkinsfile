@@ -113,7 +113,7 @@ pipeline {
       sendTelegram("O Build ${BUILD_DISPLAY_NAME} <${env.BUILD_URL}> - Esta instavel ...\nConsulte o log para detalhes -> [Job logs](${env.BUILD_URL}console)")
     }
     failure {
-      sendTelegram("${JOB_NAME}...O Build ${BUILD_DISPLAY_NAME}  - Quebrou. \nConsulte o log para detalhes -> [Job logs]( ${env.BUILD_URL}console )")
+      sendTelegram("${JOB_NAME}...O Build ${BUILD_DISPLAY_NAME}  - Quebrou. \nConsulte o log para detalhes -> <a href='${env.BUILD_URL}console'>[Job logs]</a>")
     }
     changed {
       echo 'Things were different before...'
