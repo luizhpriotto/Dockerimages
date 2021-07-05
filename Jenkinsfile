@@ -79,12 +79,12 @@ pipeline {
           steps {
             sh 'echo build docker image desenvolvimento'
             script {
-                dockerImage = docker.build "${imagename}"
-                    docker.withRegistry( 'https://registry.sme.prefeitura.sp.gov.br', registryCredential ) {
-                        dockerImage.push("${imagetag}")
+                dockerImage = docker.build imagename
+                    docker.withRegistry( '', registryCredential ) {
+                        dockerImage.push(imagetag)
                     }
             }
-            sh "docker rmi $imagename:dev"
+            sh "docker rmi $imagename:$imagetag"
           }
         }
 	    
