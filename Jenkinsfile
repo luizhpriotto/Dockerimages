@@ -1,9 +1,10 @@
+
 pipeline {
     environment {
       branchname =  env.BRANCH_NAME.toLowerCase()
       registryCredential = 'regsme'
-      kubeconfig = "${env.branchname == 'master' ? 'config_prd' : 'config_hom' }"
-      imagetag = "${env.branchname == 'main' ? 'latest' : 'homolog' }"
+      kubeconfig = getKubeconf(env.branchname)
+      imagetag = getTag(env.branchname)
     }
   
     agent {
@@ -76,11 +77,12 @@ pipeline {
           when { anyOf { branch 'master'; branch 'main'; branch "story/*"; branch 'development'; branch 'release';  } } 
           steps {
             script {
-              def imagename = [ "registry.sme.prefeitura.sp.gov.br/${env.branchname}/sme-sigpae-api", "registry.sme.prefeitura.sp.gov.br/${env.branchname}/sme-sigpae-api2" ]               
-              def steps = imagename.collectEntries {
-                    ["image $it": job(it)]
-               }
-              parallel steps
+              imagename1 = "registry.sme.prefeitura.sp.gov.br/${env.branchname}/sme-sigpae-api"
+              dockerImage1 = docker.build imagename1
+              docker.withRegistry( 'https://registry.sme.prefeitura.sp.gov.br', registryCredential ) {
+              dockerImage1.push(imagetag)
+              }
+              sh "docker rmi $imagename1:$imagetag"
             }
           }
         }
@@ -141,12 +143,25 @@ def sendTelegram(message) {
         return response
     }
 }
-def job(image){
-    return{
-        dockerImage = docker.build image
-        docker.withRegistry( 'https://registry.sme.prefeitura.sp.gov.br', registryCredential ) {
-        dockerImage.push(imagetag)
-        }
-        sh "docker rmi $imagename:$imagetag"
+def getTag(branchName) {
+    if("main".equals(branchName)) {
+        return "latest";
+    } else if ("master".equals(branchName)) {
+        return "latest";
+    } else if ("homolog".equals(branchName)) {
+        return "homolog";
+    } else if ("development".equals(branchName)) {
+        return "dev";
+    }
+}
+def getKubeconf(branchName) {
+    if("main".equals(branchName)) {
+        return "config_prd";
+    } else if ("master".equals(branchName)) {
+        return "config_prd";
+    } else if ("homolog".equals(branchName)) {
+        return "config_hom";
+    } else if ("development".equals(branchName)) {
+        return "config_dev";
     }
 }
