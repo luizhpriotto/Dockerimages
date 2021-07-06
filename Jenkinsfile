@@ -1,11 +1,16 @@
-
 pipeline {
     environment {
       branchname =  env.BRANCH_NAME.toLowerCase()
       registryCredential = 'regsme'
-      imagename = "registry.sme.prefeitura.sp.gov.br/${env.branchname}/sme-sigpae-api"
-      kubeconfig = "${env.branchname == 'main' ? 'config_dev' : 'config_hom'}"
-      imagetag = "${env.branchname == 'main' ? 'latest' : 'release'}"
+      imagename = [ "registry.sme.prefeitura.sp.gov.br/${env.branchname}/sme-sigpae-api", "registry.sme.prefeitura.sp.gov.br/${env.branchname}/sme-sigpae-api2" ]
+      kubeconfig = "${env.branchname == 'master' ? 'config_prd'}"
+      kubeconfig = "${env.branchname == 'main' ? 'config_prd'}"
+      kubeconfig = "${env.branchname == 'homolog' ? 'config_hom'}"
+      kubeconfig = "${env.branchname == 'development' ? 'config_dev'}"
+      imagetag = "${env.branchname == 'main' ? 'latest'}"
+      imagetag = "${env.branchname == 'master' ? 'latest'}"
+      imagetag = "${env.branchname == 'homolog' ? 'homolog'}"
+      imagetag = "${env.branchname == 'development' ? 'dev'}"
     }
   
     agent {
@@ -75,38 +80,47 @@ pipeline {
         }
 
         stage('Build') {
-          when { anyOf { branch 'main'; branch "story/*"; branch 'development'; branch 'release';  } } 
+          when { anyOf { branch 'master'; branch 'main'; branch "story/*"; branch 'development'; branch 'release';  } } 
           steps {
-            script {
-                if ( env.branchname == 'main' ) {
-                  sendTelegram("🤩 Job Name: ${JOB_NAME} \nBuild: ${BUILD_DISPLAY_NAME} \nStatus: Me aprove! \nLog: \n${env.BUILD_URL}")
-                  timeout(time: 24, unit: "HOURS") {
-                    input message: 'Deseja realizar o deploy?', ok: 'SIM', submitter: 'admin'
-                  }
-                  dockerImage = docker.build imagename
-                  docker.withRegistry( '', registryCredential ) {
-                    dockerImage.push(imagetag)
-                  }
+            script {               
+              def steps = imagename.collectEntries {
+                    ["image $it": job(it)]
+               }
+              parallel steps
+              def job(image){
+                return{
+                        dockerImage = docker.build image
+                        docker.withRegistry( 'https://registry.sme.prefeitura.sp.gov.br', registryCredential ) {
+                            dockerImage.push(imagetag)
+                        }
+                        sh "docker rmi $imagename:$imagetag"
                 }
-                else {
-                  dockerImage = docker.build imagename
-                  docker.withRegistry( '', registryCredential ) {
-                    dockerImage.push(imagetag)
-                  }
-                }
+              }
             }
-            sh "docker rmi $imagename:$imagetag"
           }
         }
 	    
         stage('Deploy'){
-            when { anyOf { branch 'main'; branch "story/*"; branch 'development'; branch 'release';  } }        
+            when { anyOf {  branch 'master'; branch 'main'; branch "story/*"; branch 'development'; branch 'release';  } }        
             steps {
                 script{
-	            withCredentials([file(credentialsId: "${kubeconfig}", variable: 'config')]){
-                      sh('cp $config '+"$home"+'/.kube/config')
-                      sh( 'kubectl get nodes')
-                      sh('rm -f '+"$home"+'/.kube/config')
+                    if ( env.branchname == 'main' ||  env.branchname == 'master' || env.branchname == 'homolog' ) {
+                        sendTelegram("🤩 [Deploy] Job Name: ${JOB_NAME} \nBuild: ${BUILD_DISPLAY_NAME} \nStatus: Me aprove! \nLog: \n${env.BUILD_URL}")
+                        timeout(time: 24, unit: "HOURS") {
+                            input message: 'Deseja realizar o deploy?', ok: 'SIM', submitter: 'admin'
+                        }
+                        withCredentials([file(credentialsId: "${kubeconfig}", variable: 'config')]){
+                            sh('cp $config '+"$home"+'/.kube/config')
+                            sh( 'kubectl get nodes')
+                            sh('rm -f '+"$home"+'/.kube/config')
+                        }
+                    }
+                    else{
+                        withCredentials([file(credentialsId: "${kubeconfig}", variable: 'config')]){
+                            sh('cp $config '+"$home"+'/.kube/config')
+                            sh( 'kubectl get nodes')
+                            sh('rm -f '+"$home"+'/.kube/config')
+                        }
                     }
                 }
             }           
