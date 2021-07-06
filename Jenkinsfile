@@ -3,14 +3,14 @@ pipeline {
       branchname =  env.BRANCH_NAME.toLowerCase()
       registryCredential = 'regsme'
       imagename = [ "registry.sme.prefeitura.sp.gov.br/${env.branchname}/sme-sigpae-api", "registry.sme.prefeitura.sp.gov.br/${env.branchname}/sme-sigpae-api2" ]
-      kubeconfig = "${env.branchname == 'master' ? 'config_prd'}"
-      kubeconfig = "${env.branchname == 'main' ? 'config_prd'}"
-      kubeconfig = "${env.branchname == 'homolog' ? 'config_hom'}"
-      kubeconfig = "${env.branchname == 'development' ? 'config_dev'}"
-      imagetag = "${env.branchname == 'main' ? 'latest'}"
-      imagetag = "${env.branchname == 'master' ? 'latest'}"
-      imagetag = "${env.branchname == 'homolog' ? 'homolog'}"
-      imagetag = "${env.branchname == 'development' ? 'dev'}"
+      kubeconfig = "${env.branchname == 'master' ? 'config_prd' : 'unknow' }"
+      kubeconfig = "${env.branchname == 'main' ? 'config_prd' : 'unknow' }"
+      kubeconfig = "${env.branchname == 'homolog' ? 'config_hom' : 'unknow' }"
+      kubeconfig = "${env.branchname == 'development' ? 'config_dev' : 'unknow' }"
+      imagetag = "${env.branchname == 'main' ? 'latest'} : 'unknow' "
+      imagetag = "${env.branchname == 'master' ? 'latest' : 'unknow' }"
+      imagetag = "${env.branchname == 'homolog' ? 'homolog' : 'unknow' }"
+      imagetag = "${env.branchname == 'development' ? 'dev' : 'unknow' }"
     }
   
     agent {
