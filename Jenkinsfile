@@ -87,15 +87,6 @@ pipeline {
                     ["image $it": job(it)]
                }
               parallel steps
-              def job(image){
-                return{
-                        dockerImage = docker.build image
-                        docker.withRegistry( 'https://registry.sme.prefeitura.sp.gov.br', registryCredential ) {
-                            dockerImage.push(imagetag)
-                        }
-                        sh "docker rmi $imagename:$imagetag"
-                }
-              }
             }
           }
         }
@@ -154,5 +145,14 @@ def sendTelegram(message) {
                 url: 'https://api.telegram.org/bot'+"$TOKEN"+'/sendMessage?text='+encodedMessage+'&chat_id='+"$CHAT_ID"+'&disable_web_page_preview=true',
                 validResponseCodes: '200')
         return response
+    }
+}
+def job(image){
+    return{
+        dockerImage = docker.build image
+        docker.withRegistry( 'https://registry.sme.prefeitura.sp.gov.br', registryCredential ) {
+        dockerImage.push(imagetag)
+        }
+        sh "docker rmi $imagename:$imagetag"
     }
 }
