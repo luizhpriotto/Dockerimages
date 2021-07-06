@@ -2,7 +2,6 @@ pipeline {
     environment {
       branchname =  env.BRANCH_NAME.toLowerCase()
       registryCredential = 'regsme'
-      imagename = [ "registry.sme.prefeitura.sp.gov.br/${env.branchname}/sme-sigpae-api", "registry.sme.prefeitura.sp.gov.br/${env.branchname}/sme-sigpae-api2" ]
       kubeconfig = "${env.branchname == 'master' ? 'config_prd' : 'unknow' }"
       kubeconfig = "${env.branchname == 'main' ? 'config_prd' : 'unknow' }"
       kubeconfig = "${env.branchname == 'homolog' ? 'config_hom' : 'unknow' }"
@@ -82,7 +81,8 @@ pipeline {
         stage('Build') {
           when { anyOf { branch 'master'; branch 'main'; branch "story/*"; branch 'development'; branch 'release';  } } 
           steps {
-            script {               
+            script {
+              def imagename = [ "registry.sme.prefeitura.sp.gov.br/${env.branchname}/sme-sigpae-api", "registry.sme.prefeitura.sp.gov.br/${env.branchname}/sme-sigpae-api2" ]               
               def steps = imagename.collectEntries {
                     ["image $it": job(it)]
                }
