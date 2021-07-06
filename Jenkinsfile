@@ -2,14 +2,8 @@ pipeline {
     environment {
       branchname =  env.BRANCH_NAME.toLowerCase()
       registryCredential = 'regsme'
-      kubeconfig = "${env.branchname == 'master' ? 'config_prd' : 'unknow' }"
-      kubeconfig = "${env.branchname == 'main' ? 'config_prd' : 'unknow' }"
-      kubeconfig = "${env.branchname == 'homolog' ? 'config_hom' : 'unknow' }"
-      kubeconfig = "${env.branchname == 'development' ? 'config_dev' : 'unknow' }"
-      imagetag = "${env.branchname == 'main' ? 'latest' : 'unknow' }"
-      imagetag = "${env.branchname == 'master' ? 'latest' : 'unknow' }"
-      imagetag = "${env.branchname == 'homolog' ? 'homolog' : 'unknow' }"
-      imagetag = "${env.branchname == 'development' ? 'dev' : 'unknow' }"
+      kubeconfig = "${env.branchname == 'master' ? 'config_prd' : 'config_hom' }"
+      imagetag = "${env.branchname == 'main' ? 'latest' : 'homolog' }"
     }
   
     agent {
