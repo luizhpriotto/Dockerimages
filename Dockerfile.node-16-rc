@@ -1,0 +1,25 @@
+FROM jenkins/slave
+USER root
+RUN rm -rf /var/lib/apt/lists/* && apt update \
+       && curl -sL https://deb.nodesource.com/setup_16.x | bash - \
+       && apt-get update \
+       && apt-get install -y nodejs software-properties-common \
+       && npm install --global yarn \
+       && mkdir /opt/sonarscanner && cd /opt/sonarscanner && wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-3.2.0.1227-linux.zip && unzip sonar-scanner-cli-3.2.0.1227-linux.zip && rm sonar-scanner-cli-3.2.0.1227-linux.zip && chmod +x sonar-scanner-3.2.0.1227-linux/bin/sonar-scanner && ln -s /opt/sonarscanner/sonar-scanner-3.2.0.1227-linux/bin/sonar-scanner /usr/local/bin/sonar-scanner && apt-get remove -y unzip
+
+RUN curl -LO https://dl.k8s.io/release/v1.21.0/bin/linux/amd64/kubectl \
+    && mv ./kubectl /usr/local/bin/ \
+    && mkdir $HOME/.kube \
+    && chmod +x /usr/local/bin/kubectl \
+    && curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - \
+    && apt-key fingerprint 0EBFCD88 \
+    && add-apt-repository \
+    "deb [arch=amd64] https://download.docker.com/linux/debian \
+    $(lsb_release -cs) \
+    stable" \
+    && apt-get update \
+    && apt-get install docker-ce-cli \
+    && apt-get remove -y unzip \
+    && apt-get clean autoclean && apt-get autoremove -y && rm -rf /var/lib/{apt,dpkg,cache,log}/
+
+WORKDIR /root
