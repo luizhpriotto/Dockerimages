@@ -9,7 +9,7 @@ pipeline {
   
     agent {
       node {
-        label 'python-36-rc'
+        label 'master'
       }
     }
 
