@@ -30,7 +30,7 @@ pipeline {
 	stage('Flyway') {
 	  agent { label 'master' }
           steps{
-	    withCredentials([string(credentialsId: 'flyway_sgp_' + "${branchname}", variable: 'url')]) {
+	    withCredentials([string(credentialsId: "flyway_sgp_${branchname}", variable: 'url')]) {
               sh('echo $url')
 	    }
 	  }		
